@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Magic Stopwatch">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <title>Magic Stopwatch</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="stopwatch">
+
+        <!-- ГОЛОВНИЙ СЕКУНДОМІР -->
+
+        <div class="dial-viewport" id="dial-viewport">
+          <div class="dial-track" id="dial-track">
+        <div class="display">
+            <span id="time">00:00,00</span>
+        </div>
+
+<div class="analog-display" id="analog-display">
+  <svg id="analog-clock"
+       viewBox="0 0 400 400"
+       aria-label="Аналоговий секундомір">
+
+    <g id="analog-ticks"></g>
+    <g id="analog-numbers"></g>
+
+    <g id="analog-inner-ticks"></g>
+    <g id="analog-inner-numbers"></g>
+
+    <line id="analog-minute-hand"
+          x1="200" y1="129"
+          x2="200" y2="78"
+          stroke="#ff9f0a"
+          stroke-width="2.5"/>
+
+    <circle cx="200" cy="129" r="3.5"
+            fill="#ff9f0a"/>
+
+    <g id="analog-second-hand">
+      <line x1="200" y1="200"
+            x2="200" y2="20"
+            stroke="#ff9f0a"
+            stroke-width="2.5"/>
+
+      <line x1="200" y1="200"
+            x2="200" y2="240"
+            stroke="#ff9f0a"
+            stroke-width="2.5"/>
+    </g>
+
+    <circle cx="200" cy="200" r="4"
+            fill="black"
+            stroke="#ff9f0a"
+            stroke-width="2.5"/>
+
+    <text id="analog-time"
+          x="200" y="285"
+          text-anchor="middle"
+          fill="white"
+          font-size="25"
+          font-weight="300">
+      00:00,00
+    </text>
+
+  </svg>
+</div>
+          </div>
+        </div>
+
+        <div class="controls">
+
+            <button id="lap" type="button">
+                Коло
+            </button>
+
+            <div class="page-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+            </div>
+
+            <button id="start" type="button">
+                Старт
+            </button>
+
+        </div>
+
+        <!-- СПИСОК КІЛ -->
+
+        <div class="laps" id="laps"></div>
+
+
+        <!-- ДЕКОРАТИВНІ ЕКРАНИ ГОДИННИКА -->
+        <section class="other-screen hidden ios-page world-page" id="screen-world" aria-label="Час у світі">
+          <div class="ios-actions"><span class="ios-action">Змінити</span><span class="ios-action ios-plus">+</span></div>
+          <h1>Час у світі</h1>
+          <div class="world-city"><div><small>Сьогодні, +0 год</small><div class="city-name">Київ</div></div><strong id="local-clock">01:26</strong></div>
+        </section>
+
+        <section class="other-screen hidden ios-page alarms-page" id="screen-alarms" aria-label="Будильники">
+          <div class="ios-actions"><span class="ios-action">Змінити</span><span class="ios-action ios-plus">+</span></div>
+          <h1>Будильники</h1>
+          <div class="alarm-section-title">▣ Сон | Підйом</div>
+          <div class="sleep-row"><div class="sleep-empty">Немає<br>будильників</div><span class="sleep-edit">ЗМІНИТИ</span></div>
+          <div class="alarm-section-title other-title">Інше</div>
+          <div class="alarm-entry"><div><div class="alarm-time">10:00</div><div class="alarm-sub">Будильник</div></div><span class="fake-toggle"><i></i></span></div>
+          <div class="alarm-entry"><div><div class="alarm-time">18:50</div><div class="alarm-sub">Будильник</div></div><span class="fake-toggle"><i></i></span></div>
+          <div class="alarm-entry"><div><div class="alarm-time">21:50</div><div class="alarm-sub">Будильник</div></div><span class="fake-toggle"><i></i></span></div>
+        </section>
+
+        <section class="other-screen hidden ios-page timers-page" id="screen-timers" aria-label="Таймери">
+          <div class="ios-actions"><span class="ios-action">Змінити</span></div>
+          <h1>Таймери</h1>
+          <div class="timer-picker" aria-hidden="true">
+            <div class="picker-column"><span>23</span><span>0</span><b>0 <em>год</em></b><span>1</span><span>2</span></div>
+            <div class="picker-column"><span>8</span><span>9</span><b>10 <em>хв</em></b><span>11</span><span>12</span></div>
+            <div class="picker-column"><span>59</span><span>59</span><b>0 <em>с</em></b><span>1</span><span>2</span></div>
+          </div>
+          <div class="timer-buttons"><span class="timer-cancel">×</span><span class="timer-play">▶</span></div>
+          <div class="timer-settings"><div><span>Назва</span><span class="timer-muted">Таймер</span></div><div><span>Звук</span><span class="timer-muted">Радар ›</span></div></div>
+          <div class="recent-title">Недавні</div>
+          <div class="recent-entry"><span>10:00</span><span class="recent-play">▶</span></div>
+          <div class="recent-entry"><span>3:00</span><span class="recent-play">▶</span></div>
+        </section>
+
+        <!-- НИЖНЯ ПАНЕЛЬ НАВІГАЦІЇ -->
+
+        <nav
+            class="bottom-menu"
+            aria-label="Розділи годинника"
+        >
+
+            <!-- ЧАС У СВІТІ -->
+
+            <button
+                type="button"
+                class="menu-item"
+                data-screen="world"
+                aria-label="Час у світі"
+            >
+
+                <svg
+                    viewBox="0 0 32 32"
+                    aria-hidden="true"
+                >
+                    <circle
+                        cx="16"
+                        cy="16"
+                        r="12.3"
+                    />
+
+                    <path
+                        d="M3.7 16h24.6
+                           M16 3.7c-4.6 3.7-7 7.8-7 12.3s2.4 8.6 7 12.3
+                           M16 3.7c4.6 3.7 7 7.8 7 12.3s-2.4 8.6-7 12.3
+                           M6.7 8.5h18.6
+                           M6.7 23.5h18.6"
+                    />
+                </svg>
+
+                <span>Час у світі</span>
+
+            </button>
+
+
+            <!-- БУДИЛЬНИКИ -->
+
+            <button
+                type="button"
+                class="menu-item"
+                data-screen="alarms"
+                aria-label="Будильники"
+            >
+
+                <svg
+                    viewBox="0 0 32 32"
+                    aria-hidden="true"
+                >
+
+                    <!-- ЛІВЕ ВУШКО -->
+
+                    <path
+                        d="M8.5 3.5
+                           Q5.5 2.5 3.8 6
+                           L3.2 7.5
+                           Q3 8.5 4 8.7
+                           L9 5"
+                        fill="currentColor"
+                        stroke="none"
+                    />
+
+                    <!-- ПРАВЕ ВУШКО -->
+
+                    <path
+                        d="M23.5 3.5
+                           Q26.5 2.5 28.2 6
+                           L28.8 7.5
+                           Q29 8.5 28 8.7
+                           L23 5"
+                        fill="currentColor"
+                        stroke="none"
+                    />
+
+                    <!-- НІЖКИ -->
+
+                    <path
+                        d="M10 25.5L7.5 29
+                           M22 25.5L24.5 29"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                    />
+
+                    <!-- БІЛИЙ ЦИФЕРБЛАТ -->
+
+                    <circle
+                        cx="16"
+                        cy="16.5"
+                        r="10.3"
+                        fill="currentColor"
+                        stroke="none"
+                    />
+
+                    <!-- ТЕМНІ СТРІЛКИ -->
+
+                    <path
+                        d="M16 10.5V16.5H11.8"
+                        fill="none"
+                        stroke="#1c1c1e"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+
+                </svg>
+
+                <span>Будильники</span>
+
+            </button>
+
+
+            <!-- СЕКУНДОМІР -->
+
+            <button
+                type="button"
+                class="menu-item selected"
+                data-screen="stopwatch"
+                aria-current="page"
+                aria-label="Секундомір"
+            >
+
+                
+<svg viewBox="0 0 32 32" aria-hidden="true">
+
+  <!-- Верхня кнопка -->
+  <rect
+    x="14.8" y="5.5"
+    width="2.4" height="4.2"
+    rx="1.2"
+    fill="currentColor"
+  />
+
+  <!-- Права кнопка -->
+  <path
+    d="M21.7 12.3 L24.1 9.9"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2.4"
+    stroke-linecap="round"
+  />
+
+  <!-- Єдиний суцільний корпус -->
+  <circle
+    cx="16" cy="19" r="10.5"
+    fill="currentColor"
+    stroke="none"
+  />
+
+  <!-- Чорна стрілка -->
+  <path
+    d="M16 12.1 V19.2"
+    fill="none"
+    stroke="var(--watch-hand-color, #171719)"
+    stroke-width="1.7"
+    stroke-linecap="round"
+  />
+
+  <!-- Чорна центральна точка -->
+  <circle
+    cx="16" cy="19.2" r="1.65"
+    fill="var(--watch-hand-color, #171719)"
+    stroke="none"
+  />
+
+</svg>
+
+
+                <span>Секундомір</span>
+
+            </button>
+
+
+            <!-- ТАЙМЕРИ -->
+
+            
+
+<button type="button" class="menu-item" data-screen="timers" aria-label="Таймери">
+
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+
+        <!-- Зовнішнє коло -->
+        <path
+            d="M8.5 7 A12 12 0 1 1 4.1 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+        />
+
+        <!-- Стрілка на 10-ту годину -->
+        <path
+            d="M8.2 9.5 Q8 9.2 8.4 9.2 Q11.2 10.8 16.7 13.5 Q18.5 15.2 16.8 17.5 Q15.8 18.1 14.8 16.7 Q11 12.8 8.2 9.5 Z"
+            fill="currentColor"
+            stroke="none"
+        />
+
+    </svg>
+
+    <span>Таймери</span>
+
+</button>
+
+
+
+        </nav>
+
+    </main>
+
+
+    <!-- ПРИХОВАНЕ МЕНЮ -->
+
+    <div
+        id="secret-menu"
+        class="secret-menu hidden"
+    >
+
+        <div class="secret-panel">
+
+            <h2>Magic Stopwatch</h2>
+
+            <p>Секретні налаштування</p>
+
+            <label for="force-time">
+                Передбачений час
+            </label>
+
+            <input
+                type="text"
+                id="force-time"
+                value="00:13,54"
+                inputmode="numeric"
+            >
+
+            <button
+                id="close-secret"
+                type="button"
+            >
+                Зберегти та закрити
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>

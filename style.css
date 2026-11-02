@@ -1,0 +1,494 @@
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.stopwatch {
+    position: relative;
+    width: 100%;
+    max-width: 402px;
+    height: 100dvh;
+    margin: 0 auto;
+    background-color: #000000;
+}
+
+.display {
+    position: absolute;
+    top: 19%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
+
+
+#time {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(60px, 22vw, 92px);
+    font-weight: 200;
+    letter-spacing: -3px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+
+.controls {
+    position: absolute;
+    top: 49%;
+    left: 0;
+    width: 100%;
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+button {
+    width: 78px;
+    height: 78px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#lap {
+    background-color: #242426;
+    color: #ffffff;
+}
+
+#start {
+    background-color: #063818;
+    color: #30d158;
+}
+
+.page-dots {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #666666;
+}
+
+.dot.active {
+    background-color: #ffffff;
+}
+
+
+.bottom-menu {
+    position: absolute;
+    bottom: 24px;
+    left: 16px;
+    right: 16px;
+
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+    height: 68px;
+    padding: 5px;
+
+    background-color: #242426;
+    border-radius: 40px;
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    flex: 1;
+    height: 100%;
+
+    font-size: 11px;
+    color: #ffffff;
+}
+
+.menu-icon {
+    font-size: 27px;
+    line-height: 30px;
+    margin-bottom: 3px;
+}
+
+.menu-item.selected {
+    background-color: #101012;
+    color: #ff9f0a;
+    border-radius: 40px;
+}
+
+
+
+.laps {
+    position: absolute;
+    top: 61%;
+    left: 16px;
+    right: 16px;
+    max-height: 23%;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.laps::-webkit-scrollbar {
+    display: none;
+}
+
+.lap-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-top: 1px solid #333333;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.secret-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.96);
+}
+
+.secret-panel {
+    width: min(90%, 360px);
+    padding: 24px;
+    box-sizing: border-box;
+
+    background: #1c1c1e;
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    text-align: left;
+}
+
+.secret-panel h2 {
+    margin: 0;
+    font-size: 23px;
+}
+
+.secret-panel p {
+    margin: 0;
+    color: #8e8e93;
+}
+
+.secret-panel input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 14px;
+
+    background: #2c2c2e;
+    color: white;
+    border: 1px solid #48484a;
+    border-radius: 10px;
+
+    font-size: 24px;
+    text-align: center;
+}
+
+#close-secret {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+
+    background: #ff9f0a;
+    color: black;
+    font-size: 16px;
+}
+
+.lap-row.fastest {
+    color: #30d158;
+}
+
+.lap-row.slowest {
+    color: #ff453a;
+}
+
+/* Плавна зміна цифр після натискання Stop */
+
+.time-digit {
+    display: inline-block;
+    position: relative;
+}
+
+
+
+.time-digit-old,
+.time-digit-new {
+    transition: opacity 0.45s cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+
+
+
+/* Етап 1: нижня навігація та iPhone safe areas */
+html, body { height: 100%; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; }
+.stopwatch { max-width: 430px; height: 100vh; height: 100dvh; overflow: hidden; }
+.bottom-menu {
+    z-index: 20;
+    left: 12px; right: 12px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    height: 70px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,.09);
+    background: #242426;
+    border-radius: 38px;
+}
+/* Специфічність перевищує загальне правило button */
+.bottom-menu .menu-item {
+    appearance: none;
+    width: auto; min-width: 0; height: 100%; flex: 1 1 0;
+    padding: 5px 0 4px;
+    border: 0; border-radius: 34px;
+    background: transparent;
+    color: #f5f5f7;
+    font: 500 clamp(9px, 2.65vw, 11px)/1.15 -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 4px; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+.bottom-menu .menu-item svg {
+    width: 26px; height: 26px; flex: 0 0 26px;
+    fill: none; stroke: currentColor; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round;
+}
+.bottom-menu .menu-item.selected { color: #ff9f0a; background: #111113; }
+.bottom-menu .menu-item:focus-visible { outline: 2px solid #ff9f0a; outline-offset: -3px; }
+.laps { bottom: calc(94px + env(safe-area-inset-bottom, 0px)); max-height: none; }
+.other-screen {
+    position: absolute; inset: 0 0 calc(88px + env(safe-area-inset-bottom, 0px));
+    z-index: 5; padding: calc(70px + env(safe-area-inset-top, 0px)) 22px 20px;
+    overflow-y: auto; background: #000;
+}
+.other-screen h1 { margin: 0 0 30px; font-size: 34px; font-weight: 700; }
+.screen-note { color: #8e8e93; font-size: 16px; }
+.screen-card { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #38383a; padding: 20px 0; }
+.screen-card strong { font-size: 30px; font-weight: 300; font-variant-numeric: tabular-nums; }
+@media (max-height: 690px) {
+    .display { top: 15%; }
+    .controls { top: 44%; }
+    .laps { top: 58%; }
+}
+
+
+/* v3: наближення нижньої панелі до iOS Clock (референс користувача). */
+.bottom-menu {
+    left: 12px;
+    right: 12px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    height: 74px;
+    padding: 4px;
+    gap: 0;
+    background: linear-gradient(180deg, #303033 0%, #29292c 60%, #252528 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 43px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.08), 0 3px 12px rgba(0,0,0,0.26);
+    -webkit-user-select: none;
+    user-select: none;
+}
+.bottom-menu .menu-item {
+    min-width: 0;
+    padding: 6px 0 5px;
+    gap: 3px;
+    border-radius: 38px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    font-size: clamp(9px, 2.75vw, 11px);
+    font-weight: 500;
+    letter-spacing: -0.22px;
+    line-height: 1.1;
+    color: #f5f5f7;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+.bottom-menu .menu-item svg {
+    width: 31px;
+    height: 31px;
+    flex: 0 0 31px;
+    stroke-width: 1.85;
+}
+.bottom-menu .menu-item.selected {
+    background: linear-gradient(180deg, #19191b, #101012);
+    color: #ffac20;
+    font-weight: 600;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.24);
+}
+.bottom-menu .menu-item .watch-pin { fill: currentColor; stroke: none; }
+@media (max-width: 360px) {
+    .bottom-menu { left: 7px; right: 7px; }
+    .bottom-menu .menu-item { font-size: 9px; letter-spacing: -0.3px; }
+    .bottom-menu .menu-item svg { width: 28px; height: 28px; flex-basis: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .bottom-menu .menu-item { transition: none; }
+}
+
+
+/* Спільна нерухома геометрія двох режимів */
+.dial-viewport {
+    position: absolute;
+    top: 6%;
+    left: 0;
+    width: 100%;
+    height: 53%;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 1;
+}
+.dial-track {
+    width: 200%;
+    height: 100%;
+    display: flex;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+/* Кожна сторінка займає рівно ширину вікна, а не всього треку. */
+.dial-track > .display,
+.dial-track > .analog-display {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 50%;
+    height: 100%;
+    flex: 0 0 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+}
+.dial-track > .analog-display svg {
+    display: block;
+    width: min(100%, 53dvh);
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 1 / 1;
+}
+/* Однакове положення кнопок і кіл незалежно від режиму. */
+.stopwatch .controls {
+    top: 63%;
+}
+.stopwatch .laps {
+    top: 75%;
+    bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+    max-height: none;
+}
+@media (max-height: 690px) {
+    .dial-viewport { top: 4%; height: 52%; }
+    .stopwatch .controls { top: 59%; }
+    .stopwatch .laps { top: 73%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dial-track { transition-duration: 0ms !important; }
+}
+
+/* Іконка секундоміра: активна помаранчева, неактивна біла */
+.bottom-menu .menu-item[data-screen="stopwatch"] { --watch-hand-color: #242426; }
+.bottom-menu .menu-item[data-screen="stopwatch"].selected { --watch-hand-color: #171719; }
+/* Плавна заміна всього рядка часу без перерозкладки знаків Safari */
+#time { position: relative; display: inline-block; }
+#time .force-old { position: absolute; inset: 0; white-space: nowrap; pointer-events: none; }
+#time .force-new { position: relative; white-space: nowrap; }
+
+/* v5: Safari — нерухома геометрія цифр під час форсування */
+#time { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+#time .force-old, #time .force-new {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+    font: inherit;
+    letter-spacing: inherit;
+    font-variant-numeric: tabular-nums;
+}
+
+/* v6: старий час займає місце у верстці, новий накладається зверху.
+   Два position:absolute у v5 залишали #time без власної висоти в Safari. */
+#time .force-old {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+}
+#time .force-new {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+}
+
+/* v7: статичні iOS-подібні сторінки, незалежні від секундоміра */
+.ios-page{padding:calc(84px + env(safe-area-inset-top,0px)) 24px 30px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overscroll-behavior:contain;scrollbar-width:none}
+.ios-page::-webkit-scrollbar{display:none}
+.ios-page h1{font-size:38px;font-weight:700;letter-spacing:-1.2px;margin:13px 0 18px}
+.ios-actions{position:relative;height:53px;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.ios-action{display:flex;align-items:center;justify-content:center;border-radius:30px;background:#242426;min-height:52px;padding:0 20px;font-size:23px;font-weight:400;white-space:nowrap}
+.ios-plus{width:52px;padding:0;font-size:38px;font-weight:200}
+.world-page h1{margin-bottom:17px}
+.world-city{border-top:1px solid #303034;border-bottom:1px solid #303034;display:flex;align-items:center;justify-content:space-between;padding:15px 0 17px;gap:10px}
+.world-city small{color:#8e8e93;font-size:16px;white-space:nowrap}.city-name{font-size:34px;margin-top:4px}
+.world-city strong{font-weight:200;font-size:clamp(54px,16vw,76px);letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.alarms-page h1{margin-bottom:55px}
+.alarm-section-title{font-size:21px;font-weight:600;padding-bottom:13px;border-bottom:1px solid #303034}
+.sleep-row{min-height:188px;border-bottom:1px solid #303034;display:flex;align-items:center;justify-content:space-between}
+.sleep-empty{font-size:clamp(48px,14vw,67px);line-height:1.14;color:#8e8e93;font-weight:200;letter-spacing:-2px}
+.sleep-edit{background:#242426;color:#ff9f0a;border-radius:20px;padding:10px 14px;font-size:15px}
+.other-title{margin-top:69px}
+.alarm-entry{height:125px;border-bottom:1px solid #303034;display:flex;justify-content:space-between;align-items:center}
+.alarm-time{font-size:clamp(60px,17vw,77px);line-height:1.04;font-weight:200;color:#8e8e93;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+.alarm-sub{color:#8e8e93;font-size:16px;margin-top:4px}
+.fake-toggle{width:91px;height:49px;border-radius:27px;background:#3a3a3c;display:flex;align-items:center;padding:3px;flex-shrink:0}
+.fake-toggle i{width:43px;height:43px;border-radius:50%;background:white;display:block}
+.timers-page h1{margin-bottom:112px}
+.timer-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));height:210px;position:relative;overflow:hidden;mask-image:linear-gradient(to bottom,transparent 0%,black 29%,black 71%,transparent 100%)}
+.timer-picker:before{content:"";position:absolute;left:4%;right:4%;top:78px;height:53px;border-radius:18px;background:#202023;z-index:0}
+.picker-column{z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transform:translateY(-1px);white-space:nowrap}
+.picker-column span{font-size:27px;color:#858589;line-height:31px}
+.picker-column b{height:53px;display:flex;align-items:center;justify-content:center;font-size:29px;font-weight:400;line-height:1}
+.picker-column em{font-size:23px;font-style:normal;margin-left:5px}
+.timer-buttons{display:flex;justify-content:space-between;margin:26px 5px 28px}
+.timer-buttons>span{width:108px;height:108px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:200}
+.timer-cancel{background:#242426;color:#8e8e93;font-size:65px}
+.timer-play{background:#063818;color:#30d158;font-size:44px;padding-left:6px}
+.timer-settings{background:#1c1c1e;border-radius:23px;padding:0 24px;margin:0 4px}
+.timer-settings>div{min-height:75px;display:flex;align-items:center;justify-content:space-between;font-size:19px}
+.timer-settings>div+div{border-top:1px solid #39393c}
+.timer-muted{color:#8e8e93}
+.recent-title{font-size:23px;font-weight:600;margin:75px 15px 14px}
+.recent-entry{border-top:1px solid #303034;display:flex;align-items:center;justify-content:space-between;padding:12px 12px;font-size:66px;font-weight:200;color:#8e8e93}
+.recent-play{width:64px;height:64px;background:#063818;color:#30d158;border-radius:50%;font-size:28px;display:flex;align-items:center;justify-content:center}
+@media(max-height:780px){.ios-page{padding-top:calc(55px + env(safe-area-inset-top,0px))}.timers-page h1{margin-bottom:50px}.alarms-page h1{margin-bottom:25px}.other-title{margin-top:30px}}
