@@ -49,8 +49,8 @@ function formatTime(milliseconds) {
 
 function parseForceTime(timeString) {
 
-    const parts = timeString.match(
-        /^(\d{2}):(\d{2}),(\d{2})$/
+    const parts = timeString.trim().replace(/[.٫،]/g, ",").match(
+        /^(\d{1,2}):(\d{2}),(\d{1,2})$/
     );
 
     if (!parts) {
@@ -59,7 +59,7 @@ function parseForceTime(timeString) {
 
     const minutes = Number(parts[1]);
     const seconds = Number(parts[2]);
-    const centiseconds = Number(parts[3]);
+    const centiseconds = Number(parts[3].padEnd(2, "0"));
 
     if (seconds > 59) {
         return null;
@@ -530,7 +530,9 @@ closeSecret.addEventListener("click", function () {
         return;
     }
 
-    localStorage.setItem("magicForceTime", newTime);
+    const normalizedTime = formatTime(parsedTime);
+    forceTimeInput.value = normalizedTime;
+    localStorage.setItem("magicForceTime", normalizedTime);
 
     forcedTime = parsedTime;
 

@@ -513,3 +513,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe 
 .square-result { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 14px; }
 .square-cell { min-height: 48px; border-radius: 8px; display: flex; justify-content: center; align-items: center; background: #29292c; font-size: clamp(16px, 5vw, 22px); font-variant-numeric: tabular-nums; }
 .secret-panel .square-hint { color: #aaa; font-size: 12px; line-height: 1.45; margin: 12px 0 0; }
+
+/* v9: lift both dials and the controls slightly, scale down analog only */
+.dial-viewport { top: 0%; height: 41%; }
+.stopwatch .controls { top: 44%; }
+.stopwatch .laps { top: 57%; }
+.dial-track > .analog-display svg { width: min(86%, 43dvh); max-height: 88%; }
+@media (max-height: 690px) {
+  .dial-viewport { top: 0%; height: 41%; }
+  .stopwatch .controls { top: 44%; }
+  .stopwatch .laps { top: 57%; }
+}
