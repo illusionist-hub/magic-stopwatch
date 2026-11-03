@@ -492,3 +492,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe 
 .recent-entry{border-top:1px solid #303034;display:flex;align-items:center;justify-content:space-between;padding:12px 12px;font-size:66px;font-weight:200;color:#8e8e93}
 .recent-play{width:64px;height:64px;background:#063818;color:#30d158;border-radius:50%;font-size:28px;display:flex;align-items:center;justify-content:center}
 @media(max-height:780px){.ios-page{padding-top:calc(55px + env(safe-area-inset-top,0px))}.timers-page h1{margin-bottom:50px}.alarms-page h1{margin-bottom:25px}.other-title{margin-top:30px}}
+
+/* v8: iPhone standalone geometry and compact bottom navigation */
+.dial-viewport { top: 1.5%; height: 43%; }
+.stopwatch .controls { top: 47%; }
+.stopwatch .laps { top: 60%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+.bottom-menu { height: 64px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); border-radius: 36px; padding: 3px; }
+.bottom-menu .menu-item { padding: 3px 0; gap: 2px; border-radius: 33px; font-size: clamp(9px, 2.65vw, 10.5px); }
+.bottom-menu .menu-item svg { width: 27px; height: 27px; flex-basis: 27px; }
+@media (max-height: 690px) { .dial-viewport { top: 1%; height: 43%; } .stopwatch .controls { top: 47%; } .stopwatch .laps { top: 60%; } }
+/* Secret panel scrolls independently when the keyboard is visible. */
+.secret-menu { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.secret-panel { max-height: calc(100dvh - 36px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.magic-square-section { margin: 20px 0 18px; border-top: 1px solid #38383a; padding-top: 14px; }
+.magic-square-section h3 { font-size: 18px; margin: 0 0 12px; }
+.magic-square-section label { display: block; margin-bottom: 8px; font-size: 14px; }
+.square-entry { display: flex; gap: 10px; align-items: center; }
+.secret-panel .square-entry input { min-width: 0; flex: 1; margin: 0; font-size: 18px; }
+.secret-panel #square-generate { width: auto; height: 45px; border-radius: 12px; padding: 0 15px; background: #ff9f0a; color: #000; font-weight: 600; font-size: 14px; }
+.square-result { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 14px; }
+.square-cell { min-height: 48px; border-radius: 8px; display: flex; justify-content: center; align-items: center; background: #29292c; font-size: clamp(16px, 5vw, 22px); font-variant-numeric: tabular-nums; }
+.secret-panel .square-hint { color: #aaa; font-size: 12px; line-height: 1.45; margin: 12px 0 0; }

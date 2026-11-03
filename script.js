@@ -824,3 +824,48 @@ function updateAnalogClock() {
 
 setInterval(updateAnalogClock, 30);
 updateAnalogClock();
+
+
+// v8: integer 4x4 magic square for an arbitrary target sum.
+// Dürer's 34-square + uniform quotient + a permutation correction for remainder.
+const squareTargetInput = document.getElementById("square-target");
+const squareGenerateButton = document.getElementById("square-generate");
+const squareResult = document.getElementById("square-result");
+const squareBase = [16,3,2,13, 5,10,11,8, 9,6,7,12, 4,15,14,1];
+const squareCorrectionColumns = [0,2,3,1];
+function generateMagicSquare(target) {
+    if (!Number.isSafeInteger(target)) return null;
+    const delta = target - 34;
+    if (!Number.isSafeInteger(delta)) return null;
+    const quotient = Math.floor(delta / 4);
+    const remainder = delta - quotient * 4;
+    return squareBase.map((value, index) => {
+        const row = Math.floor(index / 4);
+        const col = index % 4;
+        return value + quotient + (squareCorrectionColumns[row] === col ? remainder : 0);
+    });
+}
+function renderMagicSquare() {
+    const value = squareTargetInput.value.trim();
+    const target = Number(value);
+    const square = value !== "" && /^-?\d+$/.test(value) ? generateMagicSquare(target) : null;
+    if (!square || square.some(n => !Number.isSafeInteger(n))) {
+        squareResult.replaceChildren();
+        squareResult.textContent = "Введи ціле число в допустимому діапазоні.";
+        return;
+    }
+    squareResult.replaceChildren(...square.map(value => {
+        const cell = document.createElement("div");
+        cell.className = "square-cell";
+        cell.textContent = String(value);
+        return cell;
+    }));
+    localStorage.setItem("magicSquareTarget", String(target));
+}
+squareGenerateButton.addEventListener("click", renderMagicSquare);
+squareTargetInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") { event.preventDefault(); renderMagicSquare(); squareTargetInput.blur(); }
+});
+const storedSquareTarget = localStorage.getItem("magicSquareTarget");
+if (storedSquareTarget !== null) squareTargetInput.value = storedSquareTarget;
+renderMagicSquare();

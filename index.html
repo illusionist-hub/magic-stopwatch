@@ -377,6 +377,17 @@
                 inputmode="numeric"
             >
 
+            <div class="magic-square-section">
+                <h3>Магічний квадрат 4 × 4</h3>
+                <label for="square-target">Потрібна сума</label>
+                <div class="square-entry">
+                    <input id="square-target" type="number" step="1" inputmode="numeric" value="34" />
+                    <button id="square-generate" type="button">Створити</button>
+                </div>
+                <div class="square-result" id="square-result" aria-live="polite"></div>
+                <p class="square-hint">Сума кожного рядка, стовпця й обох головних діагоналей дорівнює введеному числу. Для сум менших за 34 можливі нулі та від’ємні значення.</p>
+            </div>
+
             <button
                 id="close-secret"
                 type="button"
