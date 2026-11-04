@@ -828,32 +828,54 @@ setInterval(updateAnalogClock, 30);
 updateAnalogClock();
 
 
-// v8: integer 4x4 magic square for an arbitrary target sum.
-// Dürer's 34-square + uniform quotient + a permutation correction for remainder.
+// v10: magic square linked to the forced stopwatch reading.
 const squareTargetInput = document.getElementById("square-target");
 const squareGenerateButton = document.getElementById("square-generate");
 const squareResult = document.getElementById("square-result");
 const squareBase = [16,3,2,13, 5,10,11,8, 9,6,7,12, 4,15,14,1];
 const squareCorrectionColumns = [0,2,3,1];
+
+function squareTargetFromForce(milliseconds) {
+    // 00:13,54 -> 1354; 01:23,45 -> 12345.
+    return Number(formatTime(milliseconds).replace(/\D/g, ""));
+}
 function generateMagicSquare(target) {
-    if (!Number.isSafeInteger(target)) return null;
+    if (!Number.isSafeInteger(target) || target < 0) return null;
     const delta = target - 34;
-    if (!Number.isSafeInteger(delta)) return null;
     const quotient = Math.floor(delta / 4);
     const remainder = delta - quotient * 4;
-    return squareBase.map((value, index) => {
-        const row = Math.floor(index / 4);
-        const col = index % 4;
-        return value + quotient + (squareCorrectionColumns[row] === col ? remainder : 0);
-    });
+    const base = squareBase.map((value, i) => value + quotient +
+        (squareCorrectionColumns[Math.floor(i / 4)] === i % 4 ? remainder : 0));
+    // A zero-sum perturbation matrix preserves ALL row/column/diagonal sums.
+    // Row offsets [a,b,-b,-a] times column signs [1,-1,-1,1].
+    if (target >= 220) {
+        const avg = target / 4;
+        const signs = [1, -1, -1, 1];
+        for (let k = 0; k < 360; k++) {
+            const a = Math.round(avg * (0.66 + (k % 19) * 0.008));
+            const b = Math.round(avg * (0.19 + (k % 17) * 0.008));
+            const rowOffsets = [a, b, -b, -a];
+            const result = base.map((v, i) => v + rowOffsets[Math.floor(i / 4)] * signs[i % 4]);
+            if (result.every(Number.isSafeInteger) && Math.min(...result) >= 0 && new Set(result).size === 16) {
+                return result;
+            }
+        }
+    }
+    // Fallback: always mathematically valid; for small targets distinct positive values
+    // cannot always be guaranteed.
+    return base;
 }
 function renderMagicSquare() {
-    const value = squareTargetInput.value.trim();
-    const target = Number(value);
-    const square = value !== "" && /^-?\d+$/.test(value) ? generateMagicSquare(target) : null;
+    const parsed = parseForceTime(forceTimeInput.value.trim());
+    if (parsed === null) {
+        squareResult.textContent = "Спочатку введи коректний форсований час, наприклад 00:13,54.";
+        return;
+    }
+    const target = squareTargetFromForce(parsed);
+    squareTargetInput.value = String(target);
+    const square = generateMagicSquare(target);
     if (!square || square.some(n => !Number.isSafeInteger(n))) {
-        squareResult.replaceChildren();
-        squareResult.textContent = "Введи ціле число в допустимому діапазоні.";
+        squareResult.textContent = "Не вдалося створити квадрат для цього значення.";
         return;
     }
     squareResult.replaceChildren(...square.map(value => {
@@ -862,12 +884,7 @@ function renderMagicSquare() {
         cell.textContent = String(value);
         return cell;
     }));
-    localStorage.setItem("magicSquareTarget", String(target));
 }
 squareGenerateButton.addEventListener("click", renderMagicSquare);
-squareTargetInput.addEventListener("keydown", event => {
-    if (event.key === "Enter") { event.preventDefault(); renderMagicSquare(); squareTargetInput.blur(); }
-});
-const storedSquareTarget = localStorage.getItem("magicSquareTarget");
-if (storedSquareTarget !== null) squareTargetInput.value = storedSquareTarget;
+forceTimeInput.addEventListener("input", renderMagicSquare);
 renderMagicSquare();

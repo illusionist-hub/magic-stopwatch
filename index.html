@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     >
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -381,13 +381,13 @@
 
             <div class="magic-square-section">
                 <h3>Магічний квадрат 4 × 4</h3>
-                <label for="square-target">Потрібна сума</label>
+                <label for="square-target">Сума з форсованого часу (автоматично)</label>
                 <div class="square-entry">
-                    <input id="square-target" type="number" step="1" inputmode="numeric" value="34" />
+                    <input id="square-target" type="text" value="1354" readonly aria-label="Сума з форсованого часу" />
                     <button id="square-generate" type="button">Створити</button>
                 </div>
                 <div class="square-result" id="square-result" aria-live="polite"></div>
-                <p class="square-hint">Сума кожного рядка, стовпця й обох головних діагоналей дорівнює введеному числу. Для сум менших за 34 можливі нулі та від’ємні значення.</p>
+                <p class="square-hint">Наприклад, 00:13,54 → 1354. Для великих сум алгоритм підбирає 16 різних чисел різної величини. Для малих сум можливі повтори, нулі або від’ємні числа.</p>
             </div>
 
             <button
@@ -405,6 +405,7 @@
     <!-- JAVASCRIPT -->
 
     <script src="script.js"></script>
+    <script src="app-shell.js"></script>
 
 </body>
 </html>
