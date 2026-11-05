@@ -524,3 +524,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe 
   .stopwatch .controls { top: 44%; }
   .stopwatch .laps { top: 57%; }
 }
+
+/* v12: disable page-level zoom gestures, but preserve swipe and scrolling. */
+html, body { touch-action: pan-x pan-y; }
+button, .menu-item, .controls, .display { touch-action: manipulation; }
+/* The dial's existing pan-y gesture handling is deliberately retained. */

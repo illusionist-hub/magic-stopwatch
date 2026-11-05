@@ -1,5 +1,5 @@
 // Increment the cache name whenever a new version of the app is published.
-const CACHE_NAME = 'magic-stopwatch-v11-20261104';
+const CACHE_NAME = 'magic-stopwatch-v13-20261105';
 const APP_FILES = [
     './', './index.html', './style.css', './script.js',
     './app-shell.js', './manifest.webmanifest', './icon.svg'
@@ -10,6 +10,8 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES))
     );
 });
+
+self.addEventListener('install', event => { event.waitUntil(self.skipWaiting()); });
 
 self.addEventListener('activate', event => {
     event.waitUntil((async () => {

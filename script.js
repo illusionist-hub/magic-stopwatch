@@ -49,7 +49,8 @@ function formatTime(milliseconds) {
 
 function parseForceTime(timeString) {
 
-    const parts = timeString.trim().replace(/[.٫،]/g, ",").match(
+    const normalized = timeString.trim().replace(/[.٫،]/g, ",");
+    const parts = (normalized.includes(":") ? normalized : "00:" + normalized).match(
         /^(\d{1,2}):(\d{2}),(\d{1,2})$/
     );
 
@@ -836,38 +837,58 @@ const squareBase = [16,3,2,13, 5,10,11,8, 9,6,7,12, 4,15,14,1];
 const squareCorrectionColumns = [0,2,3,1];
 
 function squareTargetFromForce(milliseconds) {
-    // 00:13,54 -> 1354; 01:23,45 -> 12345.
+    // The digits displayed on the stopwatch are the magic constant.
+    // 00:09,24 -> 924; 00:13,54 -> 1354; 01:23,45 -> 12345.
     return Number(formatTime(milliseconds).replace(/\D/g, ""));
 }
+
 function generateMagicSquare(target) {
     if (!Number.isSafeInteger(target) || target < 0) return null;
     const delta = target - 34;
-    const quotient = Math.floor(delta / 4);
-    const remainder = delta - quotient * 4;
-    const base = squareBase.map((value, i) => value + quotient +
-        (squareCorrectionColumns[Math.floor(i / 4)] === i % 4 ? remainder : 0));
-    // A zero-sum perturbation matrix preserves ALL row/column/diagonal sums.
-    // Row offsets [a,b,-b,-a] times column signs [1,-1,-1,1].
-    if (target >= 220) {
-        const avg = target / 4;
-        const signs = [1, -1, -1, 1];
-        for (let k = 0; k < 360; k++) {
-            const a = Math.round(avg * (0.66 + (k % 19) * 0.008));
-            const b = Math.round(avg * (0.19 + (k % 17) * 0.008));
-            const rowOffsets = [a, b, -b, -a];
-            const result = base.map((v, i) => v + rowOffsets[Math.floor(i / 4)] * signs[i % 4]);
-            if (result.every(Number.isSafeInteger) && Math.min(...result) >= 0 && new Set(result).size === 16) {
-                return result;
-            }
-        }
+    const q = Math.floor(delta / 4);
+    const r = delta - q * 4;
+    const base = squareBase.map((n, i) => n + q +
+        (squareCorrectionColumns[Math.floor(i / 4)] === i % 4 ? r : 0));
+
+    // A rank-one zero-sum matrix keeps every row, column and BOTH
+    // diagonals unchanged: rows [a,b,-b,-a], columns [c,d,-d,-c].
+    // Two such independent matrices yield a much broader numeric spread.
+    // Deterministic pseudo-random search avoids changing the layout on each render.
+    let seed = (target ^ 0x5f3759df) >>> 0;
+    const rand = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+    const avg = target / 4;
+    let best = null;
+    let bestScore = -Infinity;
+    const tries = target >= 150 ? 3500 : 400;
+    for (let k = 0; k < tries; k++) {
+        const amplitude = Math.max(1, Math.floor(avg * 0.92));
+        const a = Math.round((rand() * 2 - 1) * amplitude);
+        const b = Math.round((rand() * 2 - 1) * amplitude);
+        const c = Math.round((rand() * 2 - 1) * amplitude);
+        const d = Math.round((rand() * 2 - 1) * amplitude);
+        const e = Math.round((rand() * 2 - 1) * amplitude * 0.5);
+        const f = Math.round((rand() * 2 - 1) * amplitude * 0.5);
+        const rows1 = [a,b,-b,-a], cols1 = [1,-1,-1,1];
+        const rows2 = [1,-1,-1,1], cols2 = [c,d,-d,-c];
+        const rows3 = [e,f,-f,-e], cols3 = [1,-1,-1,1];
+        const result = base.map((n,i) => n + rows1[Math.floor(i/4)]*cols1[i%4]
+            + rows2[Math.floor(i/4)]*cols2[i%4]
+            + rows3[Math.floor(i/4)]*cols3[i%4]);
+        if (!result.every(Number.isSafeInteger) || Math.min(...result) < 1) continue;
+        const unique = new Set(result).size;
+        if (unique !== 16) continue;
+        const sorted = [...result].sort((x,y)=>x-y);
+        const spread = sorted[15]-sorted[0];
+        const gaps = sorted.slice(1).map((v,i)=>v-sorted[i]);
+        const score = spread + Math.min(...gaps)*0.3 - Math.abs(sorted[0] - Math.max(1,target*0.015))*0.2;
+        if (score > bestScore) { bestScore=score; best=result; }
     }
-    // Fallback: always mathematically valid; for small targets distinct positive values
-    // cannot always be guaranteed.
-    return base;
+    return best || base;
 }
 function renderMagicSquare() {
     const parsed = parseForceTime(forceTimeInput.value.trim());
     if (parsed === null) {
+        squareTargetInput.value = "";
         squareResult.textContent = "Спочатку введи коректний форсований час, наприклад 00:13,54.";
         return;
     }
